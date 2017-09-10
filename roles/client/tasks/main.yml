@@ -1,25 +1,35 @@
 - name: Install the EPEL repo
   yum: name=epel-release
+
 - name: Install gluster repo
   yum: name=centos-release-gluster
+
 - name: Install PIP
   yum: name=python-pip
+
 - name: Install Gluster client
   yum: name=glusterfs-client
+
 - name: Install NFS utils
   yum: name=nfs-utils
+
 - name: Mount shared filesystem
   mount: name={{ mount_point }} src={{ mount_device }} fstype={{ fstype }} state=mounted opts="direct-io-mode=disable"
+
 - name: Install fio
   yum: name=fio
+
 - name: Create sysbench test file directory
   file: state=directory path={{ mount_point }}/{{ ansible_hostname }}
+
 - name: Copy test files
   copy: src=tests/fio/ dest=/tmp/
+
 - name: Run fio
   shell: chdir={{ mount_point }}/{{ ansible_hostname }} fio /tmp/{{item}} | grep 'aggrb' >  /tmp/{{item}}-results
   with_items:
   - test-1
+
 - name: Get results
   fetch: src=/tmp/{{item}}-results dest=/tmp/{{ansible_hostname}}-{{item}}-results
   with_items:
